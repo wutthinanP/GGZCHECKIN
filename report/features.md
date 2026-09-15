@@ -1,0 +1,77 @@
+# 📋 รายการฟีเจอร์ — ระบบ Online Attendance Check-in
+
+## ✅ Completed (เสร็จแล้ว)
+
+### 🔐 Authentication
+- [x] Login ด้วยอีเมล + รหัสผ่าน
+- [x] JWT Access Token + Refresh Token
+- [x] Auto token refresh เมื่อ access token หมดอายุ
+- [x] Logout (ลบ token ออกจาก localStorage)
+
+### 📍 Check-in
+- [x] บันทึกเวลาเข้างาน (check_in_at)
+- [x] เก็บพิกัด GPS (latitude, longitude, accuracy)
+- [x] ถ่ายรูป Selfie ตอน Check-in
+- [x] คำนวณเวลามาสาย (late_minutes) เทียบกับตารางเวลาทำงาน
+- [x] ป้องกัน Check-in ซ้ำในวันเดียวกัน
+
+### 🚪 Check-out
+- [x] บันทึกเวลาออกงาน (check_out_at)
+- [x] เก็บพิกัด GPS
+- [x] ถ่ายรูป Selfie ตอน Check-out
+- [x] คำนวณเวลาทำงาน (worked_minutes)
+- [x] คำนวณ OT (overtime_minutes)
+- [x] ป้องกัน Check-out ซ้ำ + ต้อง Check-in ก่อน
+
+### 🐳 Docker
+- [x] Docker Compose (PostgreSQL + Backend + Frontend)
+- [x] Dockerfile สำหรับ Backend (Node.js)
+- [x] Dockerfile สำหรับ Frontend (React → nginx)
+- [x] nginx reverse proxy (/api → backend)
+- [x] Health check สำหรับ PostgreSQL
+
+### 📝 เอกสาร
+- [x] README.md (วิธีรัน, ข้อมูลล็อกอิน, โครงสร้างโปรเจกต์)
+- [x] สรุปโจทย์ 1 หน้า (report/summary.md)
+- [x] รายการฟีเจอร์ (report/features.md — ไฟล์นี้)
+- [x] Seed data ข้อมูลตัวอย่าง (users, roles, schedules)
+
+### 🎨 UI/UX
+- [x] Glassmorphism design (KU Green Theme)
+- [x] Responsive layout (มือถือ + Desktop)
+- [x] Animation (Framer Motion)
+- [x] Real-time clock display
+
+---
+
+## ❌ Pending (ยังค้าง)
+
+### 📊 ระบบประวัติ
+- [ ] หน้าประวัติการเช็กอิน (EmployeeHistoryPage)
+- [ ] กรองตามวันที่ (startDate / endDate)
+
+### 📋 ระบบคำขอ
+- [ ] ลาหยุด (Leave Requests)
+- [ ] ทำงานจากบ้าน (WFH Requests)
+- [ ] แก้ไขเวลา (Edit Requests)
+
+### 👔 Admin / Manager
+- [ ] Admin Dashboard (สถิติรายวัน)
+- [ ] ดูตำแหน่งพนักงานบนแผนที่
+- [ ] อนุมัติ / ปฏิเสธคำขอ
+- [ ] จัดการพนักงาน (CRUD)
+- [ ] จัดตารางเวลาทำงาน (Work Schedules)
+
+### 📈 รายงาน
+- [ ] รายงานรายเดือน
+- [ ] ส่งออก Excel / CSV
+
+### 🔔 ระบบแจ้งเตือน
+- [ ] Notification Drawer
+- [ ] Real-time SSE notifications
+- [ ] อีเมลแจ้งเตือน
+
+### 🔒 ความปลอดภัยเพิ่มเติม
+- [ ] ลืมรหัสผ่าน (OTP via Email)
+- [ ] เปลี่ยนรหัสผ่าน
+- [ ] Audit Logs
