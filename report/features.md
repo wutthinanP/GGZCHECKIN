@@ -4,6 +4,8 @@
 
 ### 🔐 Authentication
 - [x] Login ด้วยอีเมล + รหัสผ่าน
+<img width="1135" height="967" alt="image" src="https://github.com/user-attachments/assets/9df5d7df-1e0c-443a-8853-31966113210e" />
+
 - [x] JWT Access Token + Refresh Token
 - [x] Auto token refresh เมื่อ access token หมดอายุ
 - [x] Logout (ลบ token ออกจาก localStorage)
@@ -14,6 +16,7 @@
 - [x] ถ่ายรูป Selfie ตอน Check-in
 - [x] คำนวณเวลามาสาย (late_minutes) เทียบกับตารางเวลาทำงาน
 - [x] ป้องกัน Check-in ซ้ำในวันเดียวกัน
+<img width="1565" height="932" alt="image" src="https://github.com/user-attachments/assets/e3db746d-537f-45e6-917b-5536f82b3e52" />
 
 ### 🚪 Check-out
 - [x] บันทึกเวลาออกงาน (check_out_at)
