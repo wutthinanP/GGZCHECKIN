@@ -46,7 +46,17 @@
 - [x] Real-time clock display
 
 ---
+### day2
+แก้ไขการตรวจสิทธิ์ (Authorization) ของ attendance events ให้ผู้ใช้เห็นเฉพาะข้อมูลของตนเอง (ยกเว้น role ที่ได้รับอนุญาต)"
+อธิบาย : โดยปกติจะไม่ให้ user เห็นหน้าต่างการขอประวัติผู้ใช้คนอื่น เเต่ในกรณีเผื่อมีสานเทคที่ดึงข้อมูลจาก postman (ตัวอย่าง) จึงต้องป้องกันไว้
+/api/attendance/events/:attendanceId ให้เช็กว่า:
+ถ้าคนเรียกเป็นเจ้าของ attendanceId นั้น ➜ อนุญาตให้ดู
+หรือถ้าคนเรียกเป็น Role manager, admin, super_admin ➜ อนุญาตให้ดู
+ถ้าเป็นพนักงานคนอื่น ➜ ตอบ 403 Forbidden ปฏิเสธการเข้าถึง
 
+<img width="1257" height="662" alt="image" src="https://github.com/user-attachments/assets/c2b9f5f4-4580-4aca-ada7-023a09f44b27" />
+
+---
 ## ❌ Pending (ยังค้าง)
 
 ### 📊 ระบบประวัติ
