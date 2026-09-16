@@ -36,3 +36,10 @@
 - เว็บเช็กอินที่รันได้ด้วย `docker-compose up --build`
 - ผู้ใช้สามารถ Login → Check-in → Check-out ได้สมบูรณ์
 - พร้อม README, วิธีรัน, รายการฟีเจอร์, ภาพหน้าจอ
+
+## 6. การทดสอบและการรักษาความปลอดภัย (Verification & Security - Day 02)
+- **Authorization Enforcement (`/api/attendance/events/:attendanceId`):** จำกัดสิทธิ์ให้ผู้ใช้ทั่วไป (employee) เข้าถึงได้เฉพาะ attendance events ของตนเองเท่านั้น หากพยายามเปิดดูของผู้อื่น ระบบจะคืนค่า `403 Forbidden` โดยอนุญาตให้เฉพาะ role ที่มีสิทธิ์ (`manager`, `admin`, `super_admin`)
+- **Negative Authorization Test Evidence:** ทดสอบ Login เป็น User A พยายามเข้าถึงข้อมูลของ User B ได้รับ `403 Forbidden` พร้อมบันทึกผลการทดสอบใน `report/day02_evidence.md`
+- **E2E Runtime Evidence:** ทดสอบกระบวนการ Login → Check-in → GET /my/today → Check-out ครบวงจรและบันทึก log ใน `report/day02_evidence.md`
+- **Automated Test Script:** มีสคริปต์ทดสอบ `B_END/test_day02.js` สำหรับรันตรวจสอบอัตโนมัติ
+
