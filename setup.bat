@@ -41,8 +41,8 @@ echo.
 echo ===================================================
 echo   Setup Complete! System is ready.
 echo ===================================================
-echo   Frontend : http://localhost:8080
-echo   Backend  : http://localhost:3000
+echo   Frontend : http://localhost:8081
+echo   Backend  : http://localhost:3001
 echo.
 echo   [Test Login Account]
 echo   Email    : employee1@company.com
@@ -50,5 +50,5 @@ echo   Password : 123456
 echo ===================================================
 echo.
 echo Opening browser...
-start http://localhost:8080
+start http://localhost:8081
 pause

@@ -497,9 +497,34 @@ router.get('/daily/:date', authenticate, authorize('manager', 'admin', 'super_ad
 // ══════════════════════════════════════════════
 router.get('/events/:attendanceId', authenticate, async (req, res) => {
   try {
+    const attendanceId = parseInt(req.params.attendanceId);
+    if (isNaN(attendanceId)) {
+      return res.status(400).json({ error: 'attendanceId ไม่ถูกต้อง' });
+    }
+
+    // ตรวจสอบว่ามีข้อมูล attendance หรือไม่
+    const { rows: attRows } = await pool.query(
+      `SELECT id, user_id FROM attendance WHERE id = $1`,
+      [attendanceId]
+    );
+
+    if (attRows.length === 0) {
+      return res.status(404).json({ error: 'ไม่พบข้อมูล attendance' });
+    }
+
+    const attendance = attRows[0];
+
+    // Authorization: ให้ผู้ใช้เห็นเฉพาะข้อมูลของตนเอง (ยกเว้น role: manager, admin, super_admin)
+    const isOwner = attendance.user_id === req.user.id;
+    const isPrivileged = ['manager', 'admin', 'super_admin'].includes(req.user.role_name);
+
+    if (!isOwner && !isPrivileged) {
+      return res.status(403).json({ error: 'คุณไม่มีสิทธิ์เข้าถึงข้อมูล attendance ของผู้ใช้อื่น' });
+    }
+
     const { rows } = await pool.query(
       `SELECT * FROM attendance_events WHERE attendance_id = $1 ORDER BY event_at ASC`,
-      [parseInt(req.params.attendanceId)]
+      [attendanceId]
     );
     res.json(rows);
   } catch (err) {

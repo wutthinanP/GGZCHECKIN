@@ -24,10 +24,10 @@ docker-compose up -d
 echo.
 echo ===================================================
 echo   System Started Successfully!
-echo   Frontend : http://localhost:8080
-echo   Backend  : http://localhost:3000
+echo   Frontend : http://localhost:8081
+echo   Backend  : http://localhost:3001
 echo ===================================================
 echo.
 echo Opening browser...
-start http://localhost:8080
+start http://localhost:8081
 pause

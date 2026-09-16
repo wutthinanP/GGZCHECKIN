@@ -2,15 +2,12 @@
 -- PostgreSQL database dump
 --
 
-\restrict vfh8oKSMxAubxAcxowWpRylUVvmojgarxD1suViBVKDRn61PmgaOC9rX9n9xU8a
-
 -- Dumped from database version 18.1
 -- Dumped by pg_dump version 18.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
-SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -1280,6 +1277,4 @@ ALTER TABLE ONLY public.wfh_requests
 --
 -- PostgreSQL database dump complete
 --
-
-\unrestrict vfh8oKSMxAubxAcxowWpRylUVvmojgarxD1suViBVKDRn61PmgaOC9rX9n9xU8a
 
