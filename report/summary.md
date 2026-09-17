@@ -43,3 +43,11 @@
 - **E2E Runtime Evidence:** ทดสอบกระบวนการ Login → Check-in → GET /my/today → Check-out ครบวงจรและบันทึก log ใน `report/day02_evidence.md`
 - **Automated Test Script:** มีสคริปต์ทดสอบ `B_END/test_day02.js` สำหรับรันตรวจสอบอัตโนมัติ
 
+## 7. การยกระดับความปลอดภัยขั้นสูง (Security Hardening & Negative Tests - Day 03)
+- **SSE Stream Security (`/api/events`):** ปิดกั้นไม่ให้เข้าถึงแบบ Public โดยเพิ่ม `authenticateSSE` บังคับตรวจสอบ JWT ก่อนเชื่อมต่อ Realtime SSE Stream
+- **Discontinue Query Token in REST:** ตัดการรับ JWT ผ่าน Query String (`?token=...`) ใน REST APIs เพื่อป้องกัน Token รั่วไหลผ่าน Browser History และ Server Access Logs
+- **Fail-Safe Secret & DB Config:** ป้องกัน Default/Hard-coded secrets โดยระงับการทำงานทันทีกรณีไม่มี `JWT_SECRET` หรือ DB configuration ที่จำเป็น
+- **Automated Security Test Suite:** สคริปต์ `B_END/test_day03_security.js` ตรวจสอบ Negative tests 5 เคส (No Token, Invalid Token, Query Token on REST, IDOR, SSE without token) พร้อม E2E Flow ผ่าน 100%
+- **Evidence Report:** บันทึกหลักฐานฉบับสมบูรณ์ใน `report/day03_evidence.md`
+
+
