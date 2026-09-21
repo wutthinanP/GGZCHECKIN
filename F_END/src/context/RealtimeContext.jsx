@@ -1,21 +1,33 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useAuth } from './AuthContext';
 
 const RealtimeContext = createContext(null);
 
 export const RealtimeProvider = ({ children }) => {
+  const { user } = useAuth();
   const [lastEvent, setLastEvent] = useState(null);
   const [eventCount, setEventCount] = useState(0);
 
   useEffect(() => {
+    // Only connect to SSE if authenticated user is present
+    if (!user) {
+      setLastEvent(null);
+      return;
+    }
+
     let eventSource = null;
     let reconnectTimeout = null;
 
     const connectSSE = () => {
       try {
-        eventSource = new EventSource('/api/events');
+        const token = localStorage.getItem('accessToken');
+        if (!token) return;
+
+        // Securely pass token to protected SSE stream
+        eventSource = new EventSource(`/api/events?token=${encodeURIComponent(token)}`);
 
         eventSource.onopen = () => {
-          // Connected
+          // Connected successfully
         };
 
         eventSource.onmessage = (e) => {
@@ -30,11 +42,15 @@ export const RealtimeProvider = ({ children }) => {
 
         eventSource.onerror = () => {
           eventSource?.close();
-          // Reconnect after 3s
-          reconnectTimeout = setTimeout(connectSSE, 3000);
+          // Only attempt reconnect if user is still logged in
+          if (localStorage.getItem('accessToken')) {
+            reconnectTimeout = setTimeout(connectSSE, 3000);
+          }
         };
       } catch (err) {
-        reconnectTimeout = setTimeout(connectSSE, 3000);
+        if (localStorage.getItem('accessToken')) {
+          reconnectTimeout = setTimeout(connectSSE, 3000);
+        }
       }
     };
 
@@ -44,7 +60,7 @@ export const RealtimeProvider = ({ children }) => {
       if (eventSource) eventSource.close();
       if (reconnectTimeout) clearTimeout(reconnectTimeout);
     };
-  }, []);
+  }, [user]);
 
   return (
     <RealtimeContext.Provider value={{ lastEvent, eventCount }}>

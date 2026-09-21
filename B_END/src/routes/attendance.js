@@ -114,6 +114,14 @@ router.post('/check-in', authenticate, async (req, res) => {
     // Get or create attendance
     const attendance = await getOrCreateAttendance(userId, workDate);
 
+    // Guard against backdated check-in tampering
+    if (req.body.work_date && req.body.work_date !== workDate) {
+      return res.status(400).json({ error: 'ไม่อนุญาตให้ Check-in ย้อนหลัง (Backdated check-in is not allowed)' });
+    }
+    if (req.body.date && req.body.date !== workDate) {
+      return res.status(400).json({ error: 'ไม่อนุญาตให้ Check-in ย้อนหลัง (Backdated check-in is not allowed)' });
+    }
+
     if (attendance.check_in_at) {
       return res.status(400).json({ error: 'คุณ Check-in วันนี้แล้ว' });
     }
@@ -399,7 +407,30 @@ router.get('/my/today', authenticate, async (req, res) => {
 router.get('/my/history', authenticate, async (req, res) => {
   try {
     const { startDate, endDate, page = 1, limit = 31 } = req.query;
+
+    // Validate date range
+    if (startDate && endDate && startDate > endDate) {
+      return res.status(400).json({ error: 'ช่วงวันที่ไม่ถูกต้อง: วันที่เริ่มต้นต้องไม่มากกว่าวันที่สิ้นสุด (startDate cannot be greater than endDate)' });
+    }
+
     const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    // Count total matching records for pagination
+    let countQuery = `SELECT COUNT(*) as total FROM attendance WHERE user_id = $1`;
+    const countParams = [req.user.id];
+    let cIdx = 2;
+    if (startDate) {
+      countQuery += ` AND work_date >= $${cIdx++}`;
+      countParams.push(startDate);
+    }
+    if (endDate) {
+      countQuery += ` AND work_date <= $${cIdx++}`;
+      countParams.push(endDate);
+    }
+    const countRes = await pool.query(countQuery, countParams);
+    const totalCount = parseInt(countRes.rows[0]?.total || 0, 10);
+    res.setHeader('X-Total-Count', totalCount);
+    res.setHeader('Access-Control-Expose-Headers', 'X-Total-Count');
 
     let query = `SELECT * FROM attendance WHERE user_id = $1`;
     const params = [req.user.id];

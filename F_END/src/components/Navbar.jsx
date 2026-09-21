@@ -34,9 +34,10 @@ export default function Navbar({ currentTab, setCurrentTab }) {
     // placeholder
   }, [lastEvent]);
 
-  // เปิดแค่เมนูลงเวลา (Check-in / Check-out)
+  // เมนูลงเวลา + ประวัติ
   const navItems = [
     { id: 'attendance', label: 'ลงเวลา', icon: Clock, show: true },
+    { id: 'history', label: 'ประวัติ', icon: Calendar, show: true },
   ];
 
   return (

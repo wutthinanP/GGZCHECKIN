@@ -6,6 +6,7 @@ import PageBackground from './components/PageBackground';
 import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
 import EmployeeAttendancePage from './pages/EmployeeAttendancePage';
+import EmployeeHistoryPage from './pages/EmployeeHistoryPage';
 
 function MainApp() {
   const { user, loading } = useAuth();
@@ -53,9 +54,10 @@ function MainApp() {
         setCurrentTab={setCurrentTab}
       />
 
-      {/* Main Content Area — เปิดแค่หน้า Attendance (Check-in / Check-out) */}
+      {/* Main Content Area */}
       <main style={{ flex: 1, paddingBottom: '60px', position: 'relative', zIndex: 1 }}>
         {currentTab === 'attendance' && <EmployeeAttendancePage />}
+        {currentTab === 'history' && <EmployeeHistoryPage />}
       </main>
     </div>
   );

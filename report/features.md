@@ -57,18 +57,23 @@
 <img width="1257" height="662" alt="image" src="https://github.com/user-attachments/assets/c2b9f5f4-4580-4aca-ada7-023a09f44b27" />
 
 ---
-## ❌ Pending (ยังค้าง)
+### 📊 ระบบประวัติ & การตรวจสอบความปลอดภัย (Day 04 - Day 05)
+- [x] หน้าประวัติการเช็กอิน (EmployeeHistoryPage)
+- [x] กรองตามวันที่ (startDate / endDate พร้อม Invalid Range Check)
+- [x] ระบบแบ่งหน้าประวัติ (Pagination: limit / page)
+- [x] ป้องกันการ Check-in ย้อนหลัง (Anti-Tampering / Backdated check-in prevention)
+- [x] การแยกสิทธิ์ข้อมูลพนักงาน (Employee Data Isolation & IDOR Protection)
+- [x] การตรวจสิทธิ์ระดับ Backend APIs (RBAC: Manager Access vs Employee Restricted)
 
-### 📊 ระบบประวัติ
-- [ ] หน้าประวัติการเช็กอิน (EmployeeHistoryPage)
-- [ ] กรองตามวันที่ (startDate / endDate)
+---
+## ❌ Pending (ยังค้าง — เตรียมพัฒนาในรอบถัดไป)
 
 ### 📋 ระบบคำขอ
 - [ ] ลาหยุด (Leave Requests)
 - [ ] ทำงานจากบ้าน (WFH Requests)
 - [ ] แก้ไขเวลา (Edit Requests)
 
-### 👔 Admin / Manager
+### 👔 Admin / Manager (UI & Management Features — จะเริ่มพัฒนาวันพรุ่งนี้)
 - [ ] Admin Dashboard (สถิติรายวัน)
 - [ ] ดูตำแหน่งพนักงานบนแผนที่
 - [ ] อนุมัติ / ปฏิเสธคำขอ
