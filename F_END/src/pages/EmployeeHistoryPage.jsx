@@ -4,7 +4,19 @@ import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import SelfiePreviewModal from '../components/SelfiePreviewModal';
 import LiveMapModal from '../components/LiveMapModal';
-import { Calendar, Clock, MapPin, Camera, Filter, ArrowUpRight } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Camera,
+  Filter,
+  ArrowUpRight,
+  ChevronLeft,
+  ChevronRight,
+  AlertTriangle,
+  Inbox,
+  RotateCcw,
+} from 'lucide-react';
 
 export default function EmployeeHistoryPage() {
   const { user } = useAuth();
@@ -12,21 +24,44 @@ export default function EmployeeHistoryPage() {
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [dateError, setDateError] = useState('');
+
+  // Pagination states
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+  const [totalRecords, setTotalRecords] = useState(0);
 
   // Modals
   const [selfieModalData, setSelfieModalData] = useState(null);
   const [mapLocations, setMapLocations] = useState(null);
 
   const loadHistory = async () => {
+    // Validate date range on client-side
+    if (startDate && endDate && startDate > endDate) {
+      setDateError('ช่วงวันที่ไม่ถูกต้อง: วันที่เริ่มต้นต้องไม่มากกว่าวันที่สิ้นสุด (Start date cannot be after end date)');
+      setHistory([]);
+      setTotalRecords(0);
+      setLoading(false);
+      return;
+    }
+
+    setDateError('');
+
     try {
       setLoading(true);
-      const params = {};
+      const params = {
+        page,
+        limit: pageSize,
+      };
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
-      const data = await api.getMyHistory(params);
-      setHistory(data);
+
+      const res = await api.getMyHistoryWithMeta(params);
+      setHistory(res.records || []);
+      setTotalRecords(res.total || 0);
     } catch (err) {
       console.error('Load history error:', err);
+      setDateError(err.message || 'เกิดข้อผิดพลาดในการโหลดข้อมูลประวัติ');
     } finally {
       setLoading(false);
     }
@@ -34,7 +69,25 @@ export default function EmployeeHistoryPage() {
 
   useEffect(() => {
     loadHistory();
-  }, [startDate, endDate]);
+  }, [startDate, endDate, page, pageSize]);
+
+  // Reset page to 1 when date filter changes
+  const handleStartDateChange = (val) => {
+    setStartDate(val);
+    setPage(1);
+  };
+
+  const handleEndDateChange = (val) => {
+    setEndDate(val);
+    setPage(1);
+  };
+
+  const handleClearFilter = () => {
+    setStartDate('');
+    setEndDate('');
+    setDateError('');
+    setPage(1);
+  };
 
   const formatStatus = (st, lateMins) => {
     switch (st) {
@@ -53,10 +106,12 @@ export default function EmployeeHistoryPage() {
     }
   };
 
-  // Summary stats
+  // Summary stats (calculated from currently loaded data)
   const totalWorkedMinutes = history.reduce((acc, cur) => acc + (cur.worked_minutes || 0), 0);
   const totalOtMinutes = history.reduce((acc, cur) => acc + (cur.overtime_minutes || 0), 0);
   const lateCount = history.filter((h) => h.status === 'late').length;
+
+  const totalPages = Math.max(1, Math.ceil(totalRecords / pageSize));
 
   return (
     <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '24px 16px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -64,9 +119,9 @@ export default function EmployeeHistoryPage() {
       <div className="glass-card" style={{ padding: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
           <div>
-            <h2 style={{ fontSize: '1.35rem', fontWeight: 700 }}>ประวัติการลงเวลาของฉัน</h2>
+            <h2 style={{ fontSize: '1.35rem', fontWeight: 700, color: 'var(--text-primary)' }}>ประวัติการลงเวลาของฉัน</h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              ตรวจสอบรายการเข้างาน ย้อนหลัง คำนวณชั่วโมงทำงาน และ OT
+              ตรวจสอบรายการเข้างาน ย้อนหลัง คำนวณชั่วโมงทำงาน OT พร้อมระบบแบ่งหน้า (Pagination)
             </p>
           </div>
 
@@ -76,57 +131,83 @@ export default function EmployeeHistoryPage() {
               <Filter size={16} color="var(--text-muted)" />
               <span>ตั้งแต่:</span>
               <input
+                id="filter-start-date"
                 type="date"
                 className="form-input"
                 style={{ padding: '6px 10px', width: 'auto' }}
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) => handleStartDateChange(e.target.value)}
               />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.88rem' }}>
               <span>ถึง:</span>
               <input
+                id="filter-end-date"
                 type="date"
                 className="form-input"
                 style={{ padding: '6px 10px', width: 'auto' }}
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e) => handleEndDateChange(e.target.value)}
               />
             </div>
             {(startDate || endDate) && (
               <button
+                id="btn-clear-filter"
                 className="btn btn-outline btn-sm"
-                onClick={() => {
-                  setStartDate('');
-                  setEndDate('');
-                }}
+                style={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+                onClick={handleClearFilter}
               >
+                <RotateCcw size={14} />
                 ล้างตัวกรอง
               </button>
             )}
           </div>
         </div>
 
+        {/* Invalid Date Range Alert Banner */}
+        {dateError && (
+          <div
+            id="date-range-error-banner"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              padding: '12px 16px',
+              marginBottom: '18px',
+              borderRadius: 'var(--radius-md)',
+              background: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              color: '#ef4444',
+              fontSize: '0.88rem',
+            }}
+          >
+            <AlertTriangle size={18} />
+            <span style={{ fontWeight: 500 }}>{dateError}</span>
+          </div>
+        )}
+
         {/* Stats row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
           <div className="glass-panel" style={{ padding: '16px', borderRadius: 'var(--radius-md)' }}>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>จำนวนวันที่บันทึก</div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 700, marginTop: '4px' }}>{history.length} วัน</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>จำนวนวันที่บันทึก (ทั้งหมด)</div>
+            <div style={{ fontSize: '1.6rem', fontWeight: 700, marginTop: '4px', color: 'var(--text-primary)' }}>
+              {totalRecords} วัน
+            </div>
           </div>
           <div className="glass-panel" style={{ padding: '16px', borderRadius: 'var(--radius-md)' }}>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>ชั่วโมงทำงานรวม</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>ชั่วโมงทำงานในหน้านี้</div>
             <div style={{ fontSize: '1.6rem', fontWeight: 700, marginTop: '4px', color: '#10b981' }}>
               {(totalWorkedMinutes / 60).toFixed(1)} ชม.
             </div>
           </div>
           <div className="glass-panel" style={{ padding: '16px', borderRadius: 'var(--radius-md)' }}>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>ชั่วโมง OT รวม</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>ชั่วโมง OT ในหน้านี้</div>
             <div style={{ fontSize: '1.6rem', fontWeight: 700, marginTop: '4px', color: PRIMARY }}>
               {(totalOtMinutes / 60).toFixed(1)} ชม.
             </div>
           </div>
           <div className="glass-panel" style={{ padding: '16px', borderRadius: 'var(--radius-md)' }}>
-            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>จำนวนครั้งที่สาย</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>จำนวนครั้งที่สายในหน้านี้</div>
             <div style={{ fontSize: '1.6rem', fontWeight: 700, marginTop: '4px', color: '#f59e0b' }}>
               {lateCount} ครั้ง
             </div>
@@ -153,13 +234,30 @@ export default function EmployeeHistoryPage() {
             {loading ? (
               <tr>
                 <td colSpan={8} style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-                  กำลังโหลดข้อมูล...
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                    <div className="animate-spin" style={{ width: '24px', height: '24px', border: `3px solid ${PRIMARY}`, borderTopColor: 'transparent', borderRadius: '50%' }} />
+                    <span>กำลังโหลดข้อมูลประวัติ...</span>
+                  </div>
                 </td>
               </tr>
             ) : history.length === 0 ? (
               <tr>
-                <td colSpan={8} style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
-                  ไม่พบประวัติการลงเวลา
+                <td colSpan={8} style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-muted)' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ padding: '14px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }}>
+                      <Inbox size={36} strokeWidth={1.5} color="var(--text-muted)" />
+                    </div>
+                    <div style={{ fontWeight: 600, fontSize: '1rem', color: 'var(--text-primary)' }}>
+                      ไม่พบประวัติการลงเวลา
+                    </div>
+                    <div style={{ fontSize: '0.85rem', maxWidth: '360px', lineHeight: 1.5 }}>
+                      {dateError
+                        ? 'กรุณาแก้ไขช่วงวันที่ให้ถูกต้อง'
+                        : startDate || endDate
+                        ? 'ไม่พบข้อมูลในช่วงวันที่เลือก ลองเปลี่ยนช่วงวันหรือกดปุ่ม "ล้างตัวกรอง"'
+                        : 'ยังไม่มีข้อมูลประวัติการลงเวลาในระบบ'}
+                    </div>
+                  </div>
                 </td>
               </tr>
             ) : (
@@ -265,6 +363,72 @@ export default function EmployeeHistoryPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Bar */}
+      {totalRecords > 0 && (
+        <div
+          className="glass-card"
+          style={{
+            padding: '12px 20px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '12px',
+          }}
+        >
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span>
+              แสดง {((page - 1) * pageSize) + 1} - {Math.min(page * pageSize, totalRecords)} จาก {totalRecords} รายการ
+            </span>
+            <span style={{ color: 'var(--text-muted)' }}>|</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span>แสดง:</span>
+              <select
+                className="form-input"
+                style={{ padding: '3px 8px', width: 'auto', fontSize: '0.82rem' }}
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPage(1);
+                }}
+              >
+                <option value={5}>5 รายการ</option>
+                <option value={10}>10 รายการ</option>
+                <option value={20}>20 รายการ</option>
+              </select>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button
+              id="btn-prev-page"
+              className="btn btn-outline btn-sm"
+              style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px' }}
+              disabled={page <= 1 || loading}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              <ChevronLeft size={16} />
+              <span>ก่อนหน้า</span>
+            </button>
+
+            <span style={{ fontSize: '0.85rem', fontWeight: 600, padding: '0 8px' }}>
+              หน้า {page} / {totalPages}
+            </span>
+
+            <button
+              id="btn-next-page"
+              className="btn btn-outline btn-sm"
+              style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 12px' }}
+              disabled={page >= totalPages || loading}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
+              <span>ถัดไป</span>
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Selfie Modal */}
       <SelfiePreviewModal

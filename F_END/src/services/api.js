@@ -128,6 +128,20 @@ export const api = {
     const q = new URLSearchParams(params).toString();
     return request(`/attendance/my/history?${q}`);
   },
+  getMyHistoryWithMeta: async (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    const token = localStorage.getItem('accessToken');
+    const headers = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(`/api/attendance/my/history?${q}`, { headers });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'เกิดข้อผิดพลาดในการโหลดประวัติ');
+    }
+    const total = parseInt(res.headers.get('X-Total-Count') || '0', 10);
+    const data = await res.json();
+    return { records: Array.isArray(data) ? data : [], total };
+  },
   getEmployeeAttendance: (userId, params = {}) => {
     const q = new URLSearchParams(params).toString();
     return request(`/attendance/employee/${userId}?${q}`);

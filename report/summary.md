@@ -47,7 +47,18 @@
 - **SSE Stream Security (`/api/events`):** ปิดกั้นไม่ให้เข้าถึงแบบ Public โดยเพิ่ม `authenticateSSE` บังคับตรวจสอบ JWT ก่อนเชื่อมต่อ Realtime SSE Stream
 - **Discontinue Query Token in REST:** ตัดการรับ JWT ผ่าน Query String (`?token=...`) ใน REST APIs เพื่อป้องกัน Token รั่วไหลผ่าน Browser History และ Server Access Logs
 - **Fail-Safe Secret & DB Config:** ป้องกัน Default/Hard-coded secrets โดยระงับการทำงานทันทีกรณีไม่มี `JWT_SECRET` หรือ DB configuration ที่จำเป็น
-- **Automated Security Test Suite:** สคริปต์ `B_END/test_day03_security.js` ตรวจสอบ Negative tests 5 เคส (No Token, Invalid Token, Query Token on REST, IDOR, SSE without token) พร้อม E2E Flow ผ่าน 100%
-- **Evidence Report:** บันทึกหลักฐานฉบับสมบูรณ์ใน `report/day03_evidence.md`
+## 8. ระบบประวัติและการกรองข้อมูล (History & Date Filter - Day 04)
+- **Employee History Page:** หน้าประวัติการลงเวลาส่วนตัวของพนักงาน แสดงรายการ วันที่, เวลาเข้า, เวลาออก, สถานะ, ชม.ทำงาน, OT, รูป Selfie และพิกัด GPS
+- **Date Range Filter:** ตัวกรองช่วงวันที่เพื่อค้นหารายการย้อนหลังอย่างแม่นยำ
+- **Automated Test Suite:** สคริปต์ `B_END/test_day04_history.js` ทดสอบ 9 เคสผ่าน 100% บันทึกหลักฐานใน `report/day04_evidence.md`
+
+## 9. การทดสอบรอบสุดท้ายและการตรวจสิทธิ์ (Final Regression & Authorization Check - Day 05)
+- **E2E Flow สมบูรณ์:** ทดสอบ Login → Check-in → Check-out → บันทึกสะท้อนใน History ครบวงจร
+- **Backdated Check-in Prevention:** สกัดกั้นการพยายามส่ง `work_date` หรือ `date` ย้อนหลัง (`400 Bad Request`) และบังคับใช้นาฬิกา Server
+- **Date Filter & Pagination:** ดักจับ Invalid Range (`startDate > endDate`), คืน Empty Result ถูกต้อง, และมีระบบ Pagination ตัดแบ่งหน้า
+- **Employee Data Isolation & IDOR Protection:** พนักงานเห็นเฉพาะข้อมูลตนเอง และถูกบล็อกไม่ให้เปิด Event คนอื่น (`403 Forbidden`)
+- **Manager Permission Check:** ยืนยัน RBAC สิทธิ์ผู้จัดการเข้าถึงภาพรวมและประวัติลูกทีมได้ (`200 OK`) ขณะที่ Employee ถูกปฏิเสธ (`403 Forbidden`) *(หมายเหตุ: ส่วนของ UI ผู้จัดการจะเริ่มพัฒนาในรอบถัดไป)*
+- **Automated Regression Suite:** สคริปต์ `B_END/test_day05_regression.js` ตรวจสอบ 16 เคสผ่าน 100% บันทึกหลักฐานใน `report/day05_evidence.md`
+
 
 
